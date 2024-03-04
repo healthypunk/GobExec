@@ -9,23 +9,14 @@ from gobexec.model.result import TimeResult
 from gobexec.model.tools import ExtractTool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
-goblint_witness = GoblintTool(
-    name="witness_gen",
-    program=str(Path("../analyzer/goblint").absolute()),
-    args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug", "--enable",
-          "witness.yaml.enabled"],
-    dump='witness'
-
-)
-
 
 def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
         args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug"] + args,
-        dump='apron',
-        validate= goblint_witness
+        dump= 'apron',
+        validate= True
     )
 
     return ExtractTool(
@@ -35,9 +26,7 @@ def index_tool_factory(name, args):
 
     )
 
-
-matrix = txtindex.load(Path("../bench/index/traces-rel-yaml.txt").absolute(), index_tool_factory)
-matrix.tools.insert(0,ExtractTool(goblint_witness))
+matrix = txtindex.load(Path("../bench/index/traces-rel-yaml.txt").absolute(),index_tool_factory)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
